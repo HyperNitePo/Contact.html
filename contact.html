@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer></script>
+    <title>HyperNology - Contact</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+<script src="https://unpkg.com/vue-recaptcha@latest/dist/vue-recaptcha.js"></script>
+<script src="https://unpkg.com/vue-recaptcha@latest/dist/vue-recaptcha.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<body>
+    <div id="app">
+        <v-toolbar dark>
+            <v-toolbar-title>Contact</v-toolbar-title>
+        </v-toolbar>
+        <v-container pl-5 pr-5>
+            <v-card class="grey lighten-3">
+                <v-card-title class="headline grey darken-3 white--text">
+                    聯絡我們
+                </v-card-title>
+                <v-card-text>
+                    <v-form v-model="valid" ref="form">
+                        <v-layout :class="($vuetify.breakpoint.mdAndDown ? 'column' : 'row')+' wrap'">
+                            <v-flex xs6 class="pr-5">
+                                <v-text-field v-model="form.name" required label="姓名 Name (MC IGN) " :rules="rules"></v-text-field>
+                                <v-text-field v-model="form.phone" required label="電話 (區碼) Phone" :rules="rules" mask="(+###) #### #### ###"></v-text-field>
+                            </v-flex>
+                            <v-flex xs6 class="pr-5">
+                                <v-text-field v-model="form.email" required label="電郵地址 Email" :rules="[v => v.toString().includes('@') || '格式不正確']"></v-text-field>
+                                <v-text-field v-model="form.website" label="網頁 Website" :rules="[v => v.toString().includes('.') || '網址格式不正確']"></v-text-field>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-textarea required label="內容 Contact" v-model="form.content" :rules="rules"></v-textarea>
+                            </v-flex>
+                            <v-flex xs12>
+                                <span class="ml-2 caption mr-2">你滿意 HyperNology 嗎?</span><v-rating v-model="form.rating"></v-rating>
+                            </v-flex>
+                            <!--v-flex xs12>
+                                <span>驗證系統</span>
+                                <vue-recaptcha sitekey="6LfLJYgUAAAAAB7Ypq88nT_7_qAZqimWYQaWV3X1"></vue-recaptcha>
+                            </v-flex-->
+                            <v-flex xs12>
+                            <v-checkbox required label="我已同意條款與細則" :rules="[v => !!v || '你必須同意此項']"></v-checkbox>
+                            </v-flex>
+                        </v-layout>
+                    </v-form>
+                    <v-btn class="green white--text" :disabled="!valid || loading" :loading="loading" @click="submit()">遞交</v-btn>
+                </v-card-text>
+            </v-card>
+        </v-container>
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            rules: [v => v.toString().length !== 0 || '必填'],
+            valid: false,
+            loading: false,
+            form: {
+                name: '',
+                phone: '',
+                email: '',
+                website: '',
+                content: '',
+                rating: 0,
+            }
+        },
+        methods: {
+            submit(){
+                this.loading = true;
+                axios({
+                    method: 'POST',
+                    url: 'https://test.hypernite.com/eric/test.php',
+                    data: {
+                        name: this.form.name,
+                        phone: this.form.phone,
+                        email: this.form.email,
+                        website: this.form.website,
+                        content: this.form.content,
+                        rating: this.form.rating
+                    }
+                }).then(res => {
+                        window.alert('Successfully submitted');
+                        this.loading = false;
+                        this.reset()
+                }).catch(err => {
+                    window.alert(err);
+                    this.loading = false
+                })
+            },
+            reset () {
+                this.$refs.form.reset()
+            },
+        }
+    })
+</script>
+<style>
+    * {
+        font-family: "Microsoft JhengHei UI",cursive;
+    }
+</style>
+</html>
